@@ -205,7 +205,6 @@ function handleExportExcel() {
         }
 
         if (!validateDateRange(tuNgay, denNgay)) {
-            alert("⚠️ Khoảng ngày không hợp lệ.");
             btn.html(svgExcelIcon);
             btn.prop('disabled', false);
             return;
@@ -243,75 +242,7 @@ function handleExportPDF() {
     });
 }
 
-function exportPDFHandler(btn, viewType) {
-    const tuNgay = document.getElementById(viewType === "Mobile" ? "tuNgayMobile" : "tuNgayDesktop").value;
-    const denNgay = document.getElementById(viewType === "Mobile" ? "denNgayMobile" : "denNgayDesktop").value;
-
-    // Lưu lại nội dung gốc của nút để khôi phục sau
-    const originalButtonContent = btn.innerHTML;
-
-    if (!tuNgay || !denNgay) {
-        alert("⚠️ Vui lòng chọn đầy đủ Từ ngày và Đến ngày trước khi xuất PDF.");
-        btn.innerHTML = originalButtonContent;
-        btn.disabled = false;
-        return;
-    }
-
-    if (!validateDateRange(tuNgay, denNgay)) {
-        alert("⚠️ Khoảng ngày không hợp lệ.");
-        btn.innerHTML = originalButtonContent;
-        btn.disabled = false;
-        return;
-    }
-
-    // Hiển thị spinner khi đang xử lý
-    btn.innerHTML = `<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>`;
-    btn.disabled = true;
-
-    const idChiNhanh = window._idcn;
-    const formattedTuNgay = formatDateForServer(tuNgay);
-    const formattedDenNgay = formatDateForServer(denNgay);
-
-    let url = "/export/pdf?";
-    if (formattedTuNgay) url += `tuNgay=${formattedTuNgay}&`;
-    if (formattedDenNgay) url += `denNgay=${formattedDenNgay}&`;
-    if (idChiNhanh) url += `idChiNhanh=${idChiNhanh}`;
-
-    fetch(url, {
-        method: "GET",
-        headers: { 'Accept': 'application/pdf' }
-    })
-        .then(response => {
-            if (!response.ok) {
-                return response.text().then(text => {
-                    throw new Error(text || "Không thể tải file PDF");
-                });
-            }
-            return response.blob();
-        })
-        .then(blob => {
-            const url = window.URL.createObjectURL(blob);
-            const a = document.createElement("a");
-            a.href = url;
-            a.download = "DanhSachHenKham.pdf";
-            document.body.appendChild(a);
-            a.click();
-            a.remove();
-            window.URL.revokeObjectURL(url);
-
-            alert("✅ Xuất PDF thành công!");
-        })
-        .catch(error => {
-            console.error("Error:", error);
-            alert("❌ Lỗi khi xuất PDF: " + error.message);
-        })
-        .finally(() => {
-            // Khôi phục lại nội dung gốc của nút
-            btn.innerHTML = originalButtonContent;
-            btn.disabled = false;
-        });
-}
-
+function exportPDFHandler(btn, viewType) { const tuNgay = document.getElementById(viewType === "Mobile" ? "tuNgayMobile" : "tuNgayDesktop").value; const denNgay = document.getElementById(viewType === "Mobile" ? "denNgayMobile" : "denNgayDesktop").value; const svgPDFIcon = ` <svg class="icon-pdf" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512" width="16" height="16" fill="currentColor"> <path d="M181.9 256.1c-5-16-4.9-46.9-2-46.9 8.4 0 7.6 36.9 2 46.9zm-1.7 47.2c-7.7 20.2-17.3 43.3-28.4 62.7 18.3-7 39-17.2 62.9-21.9-12.7-9.6-24.9-23.4-34.5-40.8zM86.1 428.1c0 .8 13.2-5.4 34.9-40.2-6.7 6.3-29.1 24.5-34.9 40.2zM248 160h136v328c0 13.3-10.7 24-24 24H24c-13.3 0-24-10.7-24-24V24C0 10.7 10.7 0 24 0h200v136c0 13.3 10.7 24 24 24z"/> </svg> PDF`; if (!tuNgay || !denNgay) { alert("⚠️ Vui lòng chọn đầy đủ Từ ngày và Đến ngày trước khi xuất PDF."); btn.innerHTML = svgPDFIcon; btn.disabled = false; return; } if (!validateDateRange(tuNgay, denNgay)) { alert("⚠️ Khoảng ngày không hợp lệ."); btn.innerHTML = svgPDFIcon; btn.disabled = false; return; } btn.innerHTML = `<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>`; btn.disabled = true; const idChiNhanh = window._idcn; const formattedTuNgay = formatDateForServer(tuNgay); const formattedDenNgay = formatDateForServer(denNgay); let url = "/export/pdf?"; if (formattedTuNgay) url += `tuNgay=${formattedTuNgay}&`; if (formattedDenNgay) url += `denNgay=${formattedDenNgay}&`; if (idChiNhanh) url += `idChiNhanh=${idChiNhanh}`; fetch(url, { method: "GET", headers: { 'Accept': 'application/pdf' } }).then(response => { if (!response.ok) { return response.text().then(text => { throw new Error(text || "Không thể tải file PDF"); }); } return response.blob(); }).then(blob => { const url = window.URL.createObjectURL(blob); const a = document.createElement("a"); a.href = url; a.download = "DanhSachHenKham.pdf"; document.body.appendChild(a); a.click(); a.remove(); window.URL.revokeObjectURL(url); alert("✅ Xuất PDF thành công!"); }).catch(error => { console.error("Error:", error); alert("❌ Lỗi khi xuất PDF: " + error.message); }).finally(() => { btn.innerHTML = svgPDFIcon; btn.disabled = false; }); }
 function validateDateRange(tuNgay, denNgay) {
     if (!tuNgay || !denNgay) return false;
 
