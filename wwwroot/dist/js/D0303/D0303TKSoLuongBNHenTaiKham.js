@@ -188,18 +188,25 @@ function handleExportExcel() {
     $('.btnExportExcel').off('click').on('click', function () {
         const btn = $(this);
 
-        const tuNgay = formatDateForServer($('#tuNgayDesktop').val() || $('#tuNgayMobile').val());
-        const denNgay = formatDateForServer($('#denNgayDesktop').val() || $('#denNgayMobile').val());
+        const tuNgayRaw = $('#tuNgayDesktop').val() || $('#tuNgayMobile').val();
+        const denNgayRaw = $('#denNgayDesktop').val() || $('#denNgayMobile').val();
+        const tuNgay = formatDateForServer(tuNgayRaw);
+        const denNgay = formatDateForServer(denNgayRaw);
         const idChiNhanh = window._idcn;
 
-        if (!tuNgay || !denNgay) {
+        const svgExcelIcon = `
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M19 2H8a1 1 0 0 0-1 1v4H3v10h4v4a1 1 0 0 0 1 1h11a1 1 0 0 0 1-1V3a1 1 0 0 0-1-1zM8 15l2.5-3L8 9h2l1.5 2L13 9h2l-2.5 3L15 15h-2l-1.5-2L10 15H8z" />
+            </svg> Excel`;
+
+        if (!tuNgayRaw || !denNgayRaw) {
             alert("⚠️ Vui lòng chọn đầy đủ Từ ngày và Đến ngày trước khi xuất Excel.");
             return;
         }
 
-        // Thêm kiểm tra ngày
-        if (!validateDateRange(tuNgay, denNgay)) {
-            btn.html('<i class="fa-solid fa-file-excel"></i> Excel');
+        if (!validateDateRange(tuNgayRaw, denNgayRaw)) {
+            alert("⚠️ Khoảng ngày không hợp lệ.");
+            btn.html(svgExcelIcon);
             btn.prop('disabled', false);
             return;
         }
@@ -216,11 +223,12 @@ function handleExportExcel() {
 
         // Khôi phục nút sau 1.5 giây
         setTimeout(() => {
-            btn.html('<i class="fa-solid fa-file-excel"></i> Excel');
+            btn.html(svgExcelIcon);
             btn.prop('disabled', false);
         }, 1500);
     });
 }
+
 
 
 
@@ -235,21 +243,25 @@ function handleExportPDF() {
     });
 }
 
-
 function exportPDFHandler(btn, viewType) {
     const tuNgay = document.getElementById(viewType === "Mobile" ? "tuNgayMobile" : "tuNgayDesktop").value;
     const denNgay = document.getElementById(viewType === "Mobile" ? "denNgayMobile" : "denNgayDesktop").value;
 
+    const svgPDFIcon = `
+        <svg class="icon-pdf" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512" width="16" height="16" fill="currentColor">
+            <path d="M181.9 256.1c-5-16-4.9-46.9-2-46.9 8.4 0 7.6 36.9 2 46.9zm-1.7 47.2c-7.7 20.2-17.3 43.3-28.4 62.7 18.3-7 39-17.2 62.9-21.9-12.7-9.6-24.9-23.4-34.5-40.8zM86.1 428.1c0 .8 13.2-5.4 34.9-40.2-6.7 6.3-29.1 24.5-34.9 40.2zM248 160h136v328c0 13.3-10.7 24-24 24H24c-13.3 0-24-10.7-24-24V24C0 10.7 10.7 0 24 0h200v136c0 13.3 10.7 24 24 24z"/>
+        </svg> PDF`;
+
     if (!tuNgay || !denNgay) {
         alert("⚠️ Vui lòng chọn đầy đủ Từ ngày và Đến ngày trước khi xuất PDF.");
-        btn.innerHTML = '<i class="fa-solid fa-file-pdf"></i> PDF';
+        btn.innerHTML = svgPDFIcon;
         btn.disabled = false;
         return;
     }
 
-    // Thêm kiểm tra ngày
     if (!validateDateRange(tuNgay, denNgay)) {
-        btn.innerHTML = '<i class="fa-solid fa-file-pdf"></i> PDF';
+        alert("⚠️ Khoảng ngày không hợp lệ.");
+        btn.innerHTML = svgPDFIcon;
         btn.disabled = false;
         return;
     }
@@ -295,7 +307,7 @@ function exportPDFHandler(btn, viewType) {
             alert("❌ Lỗi khi xuất PDF: " + error.message);
         })
         .finally(() => {
-            btn.innerHTML = '<i class="fa-solid fa-file-pdf"></i> PDF';
+            btn.innerHTML = svgPDFIcon;
             btn.disabled = false;
         });
 }
